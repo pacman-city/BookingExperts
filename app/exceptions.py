@@ -32,3 +32,18 @@ class TokenExpiredException(BookingException):
 class TokenInvalidException(BookingException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Неверный формат токена"
+
+
+class BookingDateMinException(BookingException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "Невозможно забронировать отель сроком менее одного дня"
+
+
+class BookingDateMaxException(BookingException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "Невозможно забронировать отель сроком более 60 дней"
+
+
+class NotFoundException(BookingException):
+    status_code = status.HTTP_404_NOT_FOUND
+    detail = "Not Found"
