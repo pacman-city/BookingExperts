@@ -34,6 +34,11 @@ class TokenInvalidException(BookingException):
     detail = "Неверный формат токена"
 
 
+class BookingNoneAvailableException(BookingException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Нет свободных номеров"
+
+
 class BookingDateMinException(BookingException):
     status_code = status.HTTP_400_BAD_REQUEST
     detail = "Невозможно забронировать отель сроком менее одного дня"
@@ -42,6 +47,11 @@ class BookingDateMinException(BookingException):
 class BookingDateMaxException(BookingException):
     status_code = status.HTTP_400_BAD_REQUEST
     detail = "Невозможно забронировать отель сроком более 60 дней"
+
+
+class BookingUnknownException(BookingException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    detail = "Не удалось забронировать номер ввиду неизвестной ошибки"
 
 
 class NotFoundException(BookingException):
