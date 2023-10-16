@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 
-from pydantic import BaseModel
 from fastapi import Body
+from pydantic import BaseModel
 
 
 class BookingResponse(BaseModel):

@@ -6,8 +6,8 @@ from pydantic import EmailStr
 
 from app.config import settings
 from app.exceptions import IncorrectCredentialsException
-from app.user.service import UsersService
 from app.user.models import User
+from app.user.service import UsersService
 
 encrypt = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

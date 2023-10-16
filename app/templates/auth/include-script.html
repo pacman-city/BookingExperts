@@ -1,0 +1,31 @@
+<script>
+    const onClickPasswordField = () => {
+        const input = document.getElementById("password")
+        const type = input.getAttribute("type")
+        input.setAttribute("type", {text: "password", password: "text"}[type])
+        input.setAttribute("placeholder", {text: "********", password: "password"}[type])
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.forms[0]
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault()
+            const formData = new FormData(form)
+            const body = JSON.stringify(Object.fromEntries(formData))
+            const url = {login: "auth/login", register: "users/register"}[form.name]
+
+            fetch(
+                `http://localhost:8000/api/${url}`,
+                {method: 'POST', body: body, headers: {'Content-Type': 'application/json'}}
+             )
+            .then(res => {
+                if (res.ok) window.location.href = {register: "/login", login: "/bookings"}[form.name]
+                else return res.json()
+            })
+            .then((err) => {
+                document.getElementById("error-message").textContent = err.detail
+            })
+        })
+    })
+</script>

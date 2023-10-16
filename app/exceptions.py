@@ -5,8 +5,8 @@ class BookingException(HTTPException):
     status_code = 500
     detail = ""
 
-    def __init__(self):
-        super().__init__(status_code=self.status_code, detail=self.detail)
+    def __init__(self, detail=None):
+        super().__init__(status_code=self.status_code, detail=detail or self.detail)
 
 
 class IncorrectCredentialsException(BookingException):
@@ -39,14 +39,9 @@ class BookingNoneAvailableException(BookingException):
     detail = "Нет свободных номеров"
 
 
-class BookingDateMinException(BookingException):
+class BookingDateException(BookingException):
+    """detail: required"""
     status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Невозможно забронировать отель сроком менее одного дня"
-
-
-class BookingDateMaxException(BookingException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Невозможно забронировать отель сроком более 60 дней"
 
 
 class BookingUnknownException(BookingException):

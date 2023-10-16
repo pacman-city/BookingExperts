@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 
-from app.booking.schemas import BookingResponse, BookingBody
+from app.booking.schemas import BookingBody, BookingResponse
 from app.booking.service import BookingService
 from app.exceptions import BookingUnknownException
 from app.user.dependencies import get_current_user
 from app.user.models import User
 from app.utils import validate_date
 
-router = APIRouter(prefix="/bookings", tags=["Бронирования"])
+router = APIRouter(prefix="/api/bookings", tags=["Бронирования"])
 
 
 @router.get("")

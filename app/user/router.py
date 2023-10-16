@@ -4,11 +4,11 @@ from sqlalchemy.exc import IntegrityError
 from app.exceptions import UserExistsException
 from app.user.auth import authenticate_user, create_token, hash_password
 from app.user.dependencies import get_current_user
-from app.user.schemas import UserBody, UserResponse, LoginBody
+from app.user.schemas import LoginBody, UserBody, UserResponse
 from app.user.service import UsersService
 
-router_auth = APIRouter(prefix="/auth", tags=["Авторизация"])
-router_users = APIRouter(prefix="/users", tags=["Пользователи"])
+router_auth = APIRouter(prefix="/api/auth", tags=["Авторизация"])
+router_users = APIRouter(prefix="/api/users", tags=["Пользователи"])
 
 
 @router_users.post("/register", status_code=201)
