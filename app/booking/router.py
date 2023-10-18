@@ -19,7 +19,7 @@ async def get_bookings(user: User = Depends(get_current_user)) -> list[BookingRe
 async def add_booking(
         booking: BookingBody,
         user: User = Depends(get_current_user)):
-    validate_date(booking.date_from, booking.date_to)
+    validate_date(booking.date_from, booking.date_to, max_days=60)
     booking = await BookingService.add(
         user.id,
         booking.room_id,
