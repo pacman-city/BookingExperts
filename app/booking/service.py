@@ -6,6 +6,7 @@ from app.booking.models import Booking
 from app.database import async_session_maker
 from app.exceptions import BookingNoneAvailableException
 from app.room.models import Room
+from app.hotel.models import Hotel
 from app.service import BaseService
 
 
@@ -19,8 +20,10 @@ class BookingService(BaseService):
                 select(
                     Booking.__table__.columns,
                     Room.__table__.columns,
+                    Hotel.name.label("hotel_name")
                 )
                 .join(Room, Room.id == Booking.room_id, isouter=True)
+                .join(Hotel, isouter=True)
                 .where(Booking.user_id == user_id)
             )
             result = await session.execute(query)

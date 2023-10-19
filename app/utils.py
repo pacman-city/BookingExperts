@@ -1,4 +1,7 @@
 from datetime import datetime, timedelta
+from typing import Annotated
+
+from annotated_types import MinLen
 
 from app.exceptions import BookingDateException
 
@@ -18,3 +21,25 @@ def validate_date(date_from, date_to, max_days):
 
 def get_month_days(date_from):
     return list(map(lambda i: (date_from + timedelta(days=i)).strftime("%Y-%m-%d"), range(366)))
+
+
+def format_price(number: int):
+    """Returns formatted price: 1000 -> 1 000"""
+    return f"{number:,}".replace(",", " ")
+
+
+def decline_by_cases(number: Annotated[int, MinLen(1)], vocabulary: list[str]):
+    """
+        Returns inclined word.
+        vocabulary = ["ночь", "ночи", "ночей"]
+        number: 1 2 3 ...
+        result: ночь, ночи ночи ...
+    """
+    while True:
+        if number == 1:
+            return vocabulary[0]
+        if 2 <= number <= 4:
+            return vocabulary[1]
+        if 5 <= number <= 20:
+            return vocabulary[2]
+        number = int(str(number)[-1])
