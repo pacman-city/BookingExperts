@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        <h1 class="text-center mb-10 text-3xl">
+            Выбор номера в&nbsp;
+            <span class="font-bold">{{ hotel.name }}</span>
+            <span class="block text-2xl font-light">
+                {{ date_from }}
+                &nbsp;&nbsp;
+                <span class="inline-block text-slate-400 text-3xl">&#8250;</span>
+                &nbsp;&nbsp;
+                {{ date_to }}
+            </span>
+        </h1>
+
+        {% if rooms %}
+            <div class="flex flex-col gap-8">
+                {% for room in rooms %}
+                    <div class="flex shadow-md pr-4">
+                        <img width="300" src="{{ url_for('static', path='images/' + room.image_id|string + '.webp') }}" alt="Номер">
+                        <div class="grow flex items-center">
+                            <div class="grow px-4 py-3 w-[25rem]">
+                                <div class="pl-1 font-bold">{{ room.name }}</div>
+                                <hr class="my-2">
+                                {% if room.description %}
+                                <div class="mb-2 pl-1">{{ room.description }}</div>
+                                {% endif %}
+                                <div class="pl-1 mb-2">{{ " · ".join(room.services) }}</div>
+                                <span class="pl-1 mb-2">Осталось комнат:&nbsp;{{ room.rooms_left }} из {{ room.quantity }}</span>
+                            </div>
+                            <div class="flex justify-top flex-col items-center">
+                                <span class="font-bold text-4xl">{{ format_price(room.total_cost) }}</span>
+                                <span class="mb-1 text-xl">
+                                    за
+                                    {{ booking_length }}
+                                    {{ decline_by_cases(booking_length, ["ночь", "ночи", "ночей"]) }}
+                                </span>
+                                <span class="mb-2">{{ room.price }} за ночь</span>
+                                <button class="text-lg bg-yellow-400 px-4 py-1.5 rounded-sm mb-3" type="submit">
+                                    Забронировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

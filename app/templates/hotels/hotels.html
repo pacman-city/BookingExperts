@@ -35,7 +35,7 @@
     const exploreHotelRooms = (hotel_id) => {
         const dateFromSelectValue = document.getElementById("date-from").value;
         const dateToSelectValue = document.getElementById("date-to").value;
-        window.location.href = `/pages/hotels/${hotel_id}/rooms?date_from=${dateFromSelectValue}&date_to=${dateToSelectValue}`;
+        window.location.href = `/hotels/${hotel_id}/rooms?date_from=${dateFromSelectValue}&date_to=${dateToSelectValue}`;
     }
 
     document.addEventListener('DOMContentLoaded', onChangeDate)

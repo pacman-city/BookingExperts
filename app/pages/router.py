@@ -1,11 +1,12 @@
 from datetime import date, datetime, timedelta
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Request, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.booking.router import get_bookings
-from app.hotel.router import get_available_hotels
+from app.room.router import get_rooms_by_time
+from app.hotel.router import get_hotel_by_id, get_available_hotels
 from app.utils import decline_by_cases, format_price, get_month_days
 
 router = APIRouter(prefix="", tags=["Фронтенд"])
@@ -108,9 +109,35 @@ async def get_bookings_page(
         {
             "request": request,
             "bookings": bookings,
-            "format_price": format_price,
             "from": date_now.strftime("%Y-%m-%d"),
             "to": (date_now + timedelta(days=1)).strftime("%Y-%m-%d"),
+            "format_price": format_price,
             "decline_by_cases": decline_by_cases
         },
+    )
+
+
+@router.get("/hotels/{hotel_id}/rooms", response_class=HTMLResponse)
+async def get_rooms_page(
+        request: Request,
+        date_from: date,
+        date_to: date,
+        rooms=Depends(get_rooms_by_time),
+        hotel=Depends(get_hotel_by_id)
+):
+    date_now = datetime.now().date()
+    return templates.TemplateResponse(
+        "rooms/rooms.html",
+        {
+            "request": request,
+            "hotel": hotel,
+            "rooms": rooms,
+            "date_from": date_from,
+            "date_to": date_to,
+            "booking_length": (date_to - date_from).days,
+            "from": date_now.strftime("%Y-%m-%d"),
+            "to": (date_now + timedelta(days=1)).strftime("%Y-%m-%d"),
+            "format_price": format_price,
+            "decline_by_cases": decline_by_cases
+        }
     )
