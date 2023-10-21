@@ -1,5 +1,73 @@
 {% extends "base.html" %}
 
+{% block head %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const forms = [...document.forms]
+        const layout = document.getElementById("modal-layout")
+        modalMessage = document.getElementById("modal-message")
+
+        forms.forEach(item => {
+            item.addEventListener("submit", (e) => {
+                e.preventDefault()
+                const body = JSON.stringify(Object.fromEntries(new FormData(e.target)))
+
+                fetch(
+                    '{{ request.base_url }}api/bookings',
+                    {method: 'POST', body: body, headers: {'Content-Type': 'application/json'}}
+                 )
+                .then(res => {
+                    if (res.ok) {
+                        modalMessage.innerHTML = `
+                            <p class="text-center text-xl px-16">Вы успешно забронировали номер</p>
+                            <p class="text-center mt-3">На вашу почту направлено письмо с дополнительной информацией</p>
+                            <button class="bg-yellow-400 text-lg px-16 py-1.5 rounded-sm mt-5 m-auto" type="button" id="madal-ok">
+                                OK
+                            </button>
+                        `
+                        layout.classList.remove("hidden")
+                        layout.addEventListener("click", (e) => closeModal(e, true), {once: true})
+                    }
+                    else return res.json()
+                })
+                .then((err) => {
+                    modalMessage.innerHTML = `
+                        <p class="text-center text-xl px-16">Произошла ошибка</p>
+                        <p class="text-center mt-3">${err.detail}</p>
+                        <button class="bg-yellow-400 text-lg px-16 py-1.5 rounded-sm mt-5 m-auto" type="button" id="madal-ok">
+                            OK
+                        </button>
+                    `
+                    layout.classList.remove("hidden")
+                })
+            })
+        })
+
+        const closeModal = ({target}, reload=false) => {
+            if (target.matches("#modal-layout") || target.matches("#modal-close") || target.matches("#madal-ok")) {
+                layout.classList.add("hidden")
+                reload && location.reload()
+            }
+        }
+
+        layout.addEventListener("click", closeModal)
+
+        document.querySelectorAll(".book-button").forEach(item => {
+            item.addEventListener("click", () => {
+            modalMessage.innerHTML = `
+                <p class="text-center text-xl px-16">Вы не авторизованы</p>
+                <p class="text-center">Пожалуйста авторизуйтесь чтобы забронировать номер</p>
+                <a href="/login" class="bg-yellow-400 text-lg rounded-sm px-5 py-1.5">
+                    Логин
+                </a>
+            `
+                layout.classList.remove("hidden")
+            })
+        })
+    })
+</script>
+{% endblock %}
+
 {% block content %}
     <div>
         <h1 class="text-center mb-10 text-3xl">
@@ -7,9 +75,7 @@
             <span class="font-bold">{{ hotel.name }}</span>
             <span class="block text-2xl font-light">
                 {{ date_from }}
-                &nbsp;&nbsp;
-                <span class="inline-block text-slate-400 text-3xl">&#8250;</span>
-                &nbsp;&nbsp;
+                &nbsp;<span class="inline-block text-slate-400 text-3xl">&#8250;</span>&nbsp;
                 {{ date_to }}
             </span>
         </h1>
@@ -37,9 +103,20 @@
                                     {{ decline_by_cases(booking_length, ["ночь", "ночи", "ночей"]) }}
                                 </span>
                                 <span class="mb-2">{{ room.price }} за ночь</span>
-                                <button class="text-lg bg-yellow-400 px-4 py-1.5 rounded-sm mb-3" type="submit">
-                                    Забронировать
-                                </button>
+                                {% if is_authenticated %}
+                                    <form>
+                                        <input type="hidden" value="{{ date_from }}" name="date_from">
+                                        <input type="hidden" value="{{ date_to }}" name="date_to">
+                                        <input type="hidden" value="{{ room.id }}" name="room_id">
+                                        <button class="text-lg bg-yellow-400 px-4 py-1.5 rounded-sm mb-3" type="submit">
+                                            Забронировать
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <button class="book-button text-lg bg-yellow-400 px-4 py-1.5 rounded-sm mb-3" type="button">
+                                        Забронировать
+                                    </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -47,4 +124,8 @@
             </div>
         {% endif %}
     </div>
+{% endblock %}
+
+{% block modal %}
+    {% include '/include-modal.html' %}
 {% endblock %}

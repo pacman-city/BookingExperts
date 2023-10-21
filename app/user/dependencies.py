@@ -1,35 +1,45 @@
 from fastapi import Depends, Request
-from jose import ExpiredSignatureError, JWTError, jwt
+from jose import jwt
 
 from app.config import settings
-from app.exceptions import TokenAbsentException, TokenExpiredException, TokenInvalidException
+from app.exceptions import TokenException
+from app.user.models import User
 from app.user.service import UsersService
 
 
-def get_token(request: Request):
-    """Dependency: return token or raise error"""
-    token = request.cookies.get("booking_access_token")
+def get_token_pyload(request: Request) -> dict:
+    """Read JWT token from cookies and returns token payload"""
+    token = request.cookies.get("Bearer")
     if not token:
-        raise TokenAbsentException
-    return token
+        raise TokenException(detail="Токен отсутствует")
 
-
-async def get_current_user(token: str = Depends(get_token)):
-    """
-        Dependency: return current user or raise error.
-        Accept JWT token from get_token(dependency) and validate it.
-    """
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
-    except ExpiredSignatureError:
-        raise TokenExpiredException
-    except JWTError:
-        raise TokenInvalidException
+    except jwt.ExpiredSignatureError:
+        raise TokenException(detail="Срок действия токена истек")
+    except jwt.JWTError:
+        raise TokenException
 
-    user_id: str = payload.get("sub")
+    return payload
+
+
+async def get_current_user(jwt_payload=Depends(get_token_pyload)) -> User:
+    """Return current user or raise error"""
+    user_id: str = jwt_payload.get("sub")
     if not user_id:
-        raise TokenInvalidException
+        raise TokenException
+
     user = await UsersService.find_one_or_none(id=int(user_id))
     if not user:
-        raise TokenInvalidException
+        raise TokenException
+
     return user
+
+
+async def verify_jwt(request: Request) -> bool:
+    """Check if JWT is present and valid"""
+    try:
+        get_token_pyload(request)
+    except TokenException:
+        return False
+    return True

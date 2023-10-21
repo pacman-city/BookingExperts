@@ -30,13 +30,13 @@ async def register_user(body: UserBody) -> UserResponse:
 async def login_user(response: Response, body: LoginBody) -> dict[str, str]:
     user = await authenticate_user(body.email, body.password)
     token = create_token({"sub": str(user.id)})
-    response.set_cookie("booking_access_token", token, httponly=True)
-    return {"access_token": token}
+    response.set_cookie("Bearer", token, httponly=True)
+    return {"Bearer": token}
 
 
 @router_auth.post("/logout")
 async def logout_user(response: Response) -> None:
-    response.delete_cookie("booking_access_token")
+    response.delete_cookie("Bearer")
 
 
 @router_users.get("/me")

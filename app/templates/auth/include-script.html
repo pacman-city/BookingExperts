@@ -16,7 +16,7 @@
             const url = {login: "auth/login", register: "users/register"}[form.name]
 
             fetch(
-                `http://localhost:8000/api/${url}`,
+                `{{ request.base_url }}api/${url}`,
                 {method: 'POST', body: body, headers: {'Content-Type': 'application/json'}}
              )
             .then(res => {

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends
 
 from app.booking.schemas import BookingBody, BookingResponse
 from app.booking.service import BookingService
@@ -33,6 +33,6 @@ async def add_booking(
 
 @router.delete("", status_code=204)
 async def remove_booking(
-        booking_id: int,
+        booking_id: int = Body(embed=True, ge=1, examples=[1]),
         current_user: User = Depends(get_current_user)):
     await BookingService.delete(id=booking_id, user_id=current_user.id)

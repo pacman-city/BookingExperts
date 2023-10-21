@@ -2,7 +2,9 @@
     outline: none;
 }
 
-a,button {
+a,
+button,
+input {
     display: block;
 }
 
@@ -13,14 +15,13 @@ a {
 
 input {
     width: 100%;
-    display: block;
 }
 
 input:valid + span::after {
-  position: absolute;
-  left: -20px;
-  bottom: 2px;
-  content: "✓";
+    position: absolute;
+    left: -20px;
+    bottom: 2px;
+    content: "✓";
 }
 
 label {
@@ -53,44 +54,4 @@ select::-webkit-scrollbar {
 select::-webkit-scrollbar-thumb {
     background-color: #475569;
     border-radius: 4px;
-}
-
-#search {
-    width: 100%;
-    padding-right: 45px;
-}
-
-.icon-map {
-    transform: scaleX(1.5);
-    display: inline-block;
-    margin-left: -50px;
-    margin-right: 30px;
-}
-
-.icon-location {
-    display: inline-block;
-    margin-top: -4px;
-}
-
-.login-container {
-    max-width: 500px;
-}
-
-#error-message {
-    margin-top: -8px;
-}
-
-.password-field {
-    position: relative;
-}
-
-.password-field button {
-    position: absolute;
-    bottom: 2px;
-    right: 4px;
-}
-
-.test {
-    outline: 1px solid red;
-    outline-offset: -5px;
 }

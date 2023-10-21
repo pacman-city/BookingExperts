@@ -1,58 +1,113 @@
 {% extends "base.html" %}
 
+{% block head %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cancelButtons = document.querySelectorAll("[data-id]")
+        const layout = document.getElementById("modal-layout")
+        modalMessage = document.getElementById("modal-message")
+
+        cancelButtons.forEach(item => {
+            item.addEventListener("click", (e) => {
+                const body = JSON.stringify({booking_id: e.target.dataset.id})
+
+                fetch(
+                    '{{ request.base_url }}api/bookings',
+                    {method: 'DELETE', body: body, headers: {'Content-Type': 'application/json'}}
+                )
+                .then(res => {
+                    if (res.ok) {
+                        modalMessage.innerHTML = `
+                            <p class="text-center text-xl px-16">Бронь успешно отменена</p>
+                            <button class="bg-yellow-400 text-lg px-16 py-1.5 rounded-sm mt-5 m-auto" type="button" id="madal-ok">
+                                OK
+                            </button>
+                        `
+                        layout.classList.remove("hidden")
+                        layout.addEventListener("click", (e) => closeModal(e, true), {once: true})
+                    }
+                    else return res.json()
+                })
+                .then((err) => {
+                    modalMessage.innerHTML = `
+                        <p class="text-center text-xl px-16">Произошла ошибка</p>
+                        <p class="text-center mt-3">${err.detail}</p>
+                        <button class="bg-yellow-400 text-lg px-16 py-1.5 rounded-sm mt-5 m-auto" type="button" id="madal-ok">
+                            OK
+                        </button>
+                    `
+                    layout.classList.remove("hidden")
+                })
+            })
+        })
+
+        const closeModal = ({target}, reload=false) => {
+            if (target.matches("#modal-layout") || target.matches("#modal-close") || target.matches("#madal-ok")) {
+                layout.classList.add("hidden")
+                reload && location.reload()
+            }
+        }
+
+        layout.addEventListener("click", closeModal)
+    })
+</script>
+{% endblock %}
+
+
 {% block content %}
 <h1 class="flex justify-center mb-10 text-3xl">Мои брони</h1>
 
 <div class="flex flex-col gap-8">
     {% for booking in bookings %}
-        <div class="shadow-lg">
-            <div class="flex pr-4">
-                <img width="250" src="{{ url_for('static', path='images/' + booking.image_id|string + '.webp') }}" alt="Комната">
+    <div class="shadow-lg">
+        <div class="flex pr-4">
+            <img width="250" src="{{ url_for('static', path='images/' + booking.image_id|string + '.webp') }}" alt="Комната">
 
-                <div class="grow px-4 py-3 pl-9">
-                    <h2 class="text-2xl font-bold mb-5 -ml-7">
-                        <svg class="inline align-baseline text-slate-400" width="22" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" d="M0 32C0 14.3 14.3 0 32 0h448c17.7 0 32 14.3 32 32s-14.3 32-32 32v384c17.7 0 32 14.3 32 32s-14.3 32-32 32H304v-48c0-26.5-21.5-48-48-48s-48 21.5-48 48v48H32c-17.7 0-32-14.3-32-32s14.3-32 32-32V64C14.3 64 0 49.7 0 32zm96 80v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32zm112 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16zm-240 80c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32zm112 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32zm-40 192c13.3 0 24.3-10.9 21-23.8c-10.6-41.5-48.2-72.2-93-72.2s-82.5 30.7-93 72.2c-3.3 12.8 7.8 23.8 21 23.8h144z"/>
-                        </svg>
-                        {{ booking.hotel_name }}
-                    </h2>
+            <div class="grow px-4 py-3 pl-5">
+                <h2 class="text-2xl font-bold mb-5">
+                    <svg class="inline align-baseline text-slate-700" height="18" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M0 32C0 14.3 14.3 0 32 0h448c17.7 0 32 14.3 32 32s-14.3 32-32 32v384c17.7 0 32 14.3 32 32s-14.3 32-32 32H304v-48c0-26.5-21.5-48-48-48s-48 21.5-48 48v48H32c-17.7 0-32-14.3-32-32s14.3-32 32-32V64C14.3 64 0 49.7 0 32zm96 80v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32zm112 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16zm-240 80c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32zm112 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32zm-40 192c13.3 0 24.3-10.9 21-23.8c-10.6-41.5-48.2-72.2-93-72.2s-82.5 30.7-93 72.2c-3.3 12.8 7.8 23.8 21 23.8h144z"/>
+                    </svg>
+                    {{ booking.hotel_name }}
+                </h2>
 
-                    <p class="pl-1 font-bold -ml-8">
-                        <svg class="inline align-middle text-slate-400" width="26px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="CurrentColor" fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C10.4003 22 8.88837 21.6244 7.54753 20.9565C7.19121 20.7791 6.78393 20.72 6.39939 20.8229L4.17335 21.4185C3.20701 21.677 2.32295 20.793 2.58151 19.8267L3.17712 17.6006C3.28001 17.2161 3.22094 16.8088 3.04346 16.4525C2.37562 15.1116 2 13.5997 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM7.5 11.1084C7.5 12.4768 8.81884 13.9126 10.0286 14.9417C10.8524 15.6426 11.2644 15.9931 12 15.9931C12.7356 15.9931 13.1476 15.6426 13.9714 14.9417C15.1812 13.9126 16.5 12.4768 16.5 11.1084C16.5 8.43124 14.0249 7.43172 12 9.4998C9.97507 7.43172 7.5 8.43124 7.5 11.1084Z"/>
-                        </svg>
-                        {{ booking.name }}
-                    </p>
-                    <hr class="my-2">
-                    {% if booking.description %}
-                        <div class="mb-2 pl-1 max-w-xs">{{ booking.description }}</div>
-                    {% endif %}
-                    <p class="pl-1 -ml-5">
-                        {% for service in booking.services %}
-                            <span class="text-lg text-slate-400">✓ </span> {{service}}&nbsp;&nbsp;
-                        {% endfor %}
-                    </p>
-                    <p class="mt-3">
-                        <svg class="inline text-slate-400 -ml-6 -mt-1" width="19" viewBox="0 0 8 9" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" d="M7.5 3.05H.14A.15.15 0 0 0 0 3.2v5.27c0 .09.07.16.15.16H7.5c.09 0 .15-.07.15-.16V3.2a.15.15 0 0 0-.15-.15ZM2.54 7.51c-.26 0-.54-.05-.75-.13a.08.08 0 0 1-.05-.08l.07-.52a.07.07 0 0 1 .07-.06h.03c.24.1.44.13.7.13.26 0 .44-.13.44-.3 0-.23-.1-.35-.7-.38a.08.08 0 0 1-.06-.08v-.51c0-.04.03-.07.07-.08.5-.03.56-.19.56-.3 0-.08 0-.2-.34-.2-.18 0-.38.04-.58.14a.08.08 0 0 1-.1-.06l-.08-.51a.08.08 0 0 1 .05-.08c.23-.1.52-.16.87-.16.61 0 1.03.28 1.03.71 0 .32-.17.56-.5.72.29.1.58.31.58.74 0 .62-.51 1.01-1.31 1.01Zm3.2-.12a.08.08 0 0 1-.07.08h-.63a.08.08 0 0 1-.08-.08V5.32l-.4.16a.08.08 0 0 1-.07 0 .07.07 0 0 1-.04-.06l-.07-.51a.08.08 0 0 1 .04-.08l.9-.45h.35c.04 0 .07.03.07.07V7.4ZM7.5.68h-.78v.37c0 .38-.22.8-.84.8-.63 0-.85-.42-.85-.8V.68H2.63v.37c0 .38-.22.8-.84.8s-.85-.42-.85-.8V.68H.15A.15.15 0 0 0 0 .83v1.54c0 .09.07.16.15.16H7.5c.09 0 .15-.07.15-.16V.83A.15.15 0 0 0 7.5.68Z"/>
-                            <path fill="currentColor" d="M1.79 1.36c.25 0 .35-.1.35-.32V.31C2.14.1 2.04 0 1.8 0c-.25 0-.36.1-.36.31v.73c0 .23.1.32.36.32Zm4.08 0c.25 0 .35-.1.35-.32V.31c0-.22-.1-.31-.35-.31-.26 0-.36.1-.36.31v.73c0 .23.1.32.36.32Z"/>
-                        </svg>
-                        &nbsp;С&nbsp;&nbsp;&nbsp;{{ booking.date_from }}
-                        <svg class="inline text-slate-400 -mt-1" width="26" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" fill-rule="evenodd" d="M6.293 6.293a1 1 0 0 1 1.414 0l5 5a1 1 0 0 1 0 1.414l-5 5a1 1 0 0 1-1.414-1.414L10.586 12L6.293 7.707a1 1 0 0 1 0-1.414Zm6 0a1 1 0 0 1 1.414 0l5 5a1 1 0 0 1 0 1.414l-5 5a1 1 0 0 1-1.414-1.414L16.586 12l-4.293-4.293a1 1 0 0 1 0-1.414Z"/>
-                        </svg>
-                        По&nbsp;&nbsp;&nbsp;{{ booking.date_to }}
-                    </p>
-                </div>
+                <p class="font-bold">
+                    <svg class="inline text-slate-700 mb-0.5" height="18" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="CurrentColor" fill-rule="evenodd" clip-rule="evenodd" d="M20 10a10 10 0 0 1-14.5 9c-.3-.2-.7-.3-1.1-.2l-2.2.6c-1 .3-1.9-.6-1.6-1.6l.6-2.2c0-.4 0-.8-.2-1.1A10 10 0 1 1 20 10ZM5.5 9.1C5.5 10.5 6.8 12 8 13c.9.7 1.3 1 2 1s1.1-.3 2-1c1.2-1 2.5-2.4 2.5-3.8 0-2.7-2.5-3.7-4.5-1.6-2-2-4.5-1-4.5 1.6Z"/>
+                    </svg>
+                    {{ booking.name }}
+                </p>
+                <hr class="my-2">
+                {% if booking.description %}
+                <div class="mb-2 pl-1 max-w-xs">{{ booking.description }}</div>
+                {% endif %}
+                <p class="mb-2">
+                    {% for service in booking.services %}
+                    <span class="text-lg text-slate-700">✓ </span> {{service}}&nbsp;&nbsp;
+                    {% endfor %}
+                </p>
+                <p>
+                    <svg class="inline text-slate-700 -mt-1" height="19" viewBox="0 0 8 9" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M7.5 3.05H.14A.15.15 0 0 0 0 3.2v5.27c0 .09.07.16.15.16H7.5c.09 0 .15-.07.15-.16V3.2a.15.15 0 0 0-.15-.15ZM2.54 7.51c-.26 0-.54-.05-.75-.13a.08.08 0 0 1-.05-.08l.07-.52a.07.07 0 0 1 .07-.06h.03c.24.1.44.13.7.13.26 0 .44-.13.44-.3 0-.23-.1-.35-.7-.38a.08.08 0 0 1-.06-.08v-.51c0-.04.03-.07.07-.08.5-.03.56-.19.56-.3 0-.08 0-.2-.34-.2-.18 0-.38.04-.58.14a.08.08 0 0 1-.1-.06l-.08-.51a.08.08 0 0 1 .05-.08c.23-.1.52-.16.87-.16.61 0 1.03.28 1.03.71 0 .32-.17.56-.5.72.29.1.58.31.58.74 0 .62-.51 1.01-1.31 1.01Zm3.2-.12a.08.08 0 0 1-.07.08h-.63a.08.08 0 0 1-.08-.08V5.32l-.4.16a.08.08 0 0 1-.07 0 .07.07 0 0 1-.04-.06l-.07-.51a.08.08 0 0 1 .04-.08l.9-.45h.35c.04 0 .07.03.07.07V7.4ZM7.5.68h-.78v.37c0 .38-.22.8-.84.8-.63 0-.85-.42-.85-.8V.68H2.63v.37c0 .38-.22.8-.84.8s-.85-.42-.85-.8V.68H.15A.15.15 0 0 0 0 .83v1.54c0 .09.07.16.15.16H7.5c.09 0 .15-.07.15-.16V.83A.15.15 0 0 0 7.5.68Z"/>
+                        <path fill="currentColor" d="M1.79 1.36c.25 0 .35-.1.35-.32V.31C2.14.1 2.04 0 1.8 0c-.25 0-.36.1-.36.31v.73c0 .23.1.32.36.32Zm4.08 0c.25 0 .35-.1.35-.32V.31c0-.22-.1-.31-.35-.31-.26 0-.36.1-.36.31v.73c0 .23.1.32.36.32Z"/>
+                    </svg>
+                    &nbsp;С&nbsp;&nbsp;&nbsp;{{ booking.date_from }}
+                    &nbsp;<span class="inline-block text-slate-400 text-2xl">&#8250;</span>&nbsp;
+                    По&nbsp;&nbsp;&nbsp;{{ booking.date_to }}
+                </p>
+            </div>
 
-                <div class="flex justify-top flex-col items-center justify-end">
-                    <span class="align-end font-bold text-4xl">{{ format_price(booking.total_cost) }}</span>
-                    <span class="mb-3 text-lg">за {{ booking.total_days }} {{decline_by_cases(booking.total_days, ["ночь", "ночи", "ночей"])}}</span>
-                    <span hidden id="bookingId">{{ booking.id }}</span>
-                    <button class="text-lg text-slate-50 bg-slate-500 px-3.5 py-1.5 rounded-lg mb-4">Отменить бронь</button>
-                </div>
+            <div class="flex justify-top flex-col items-center justify-end">
+                <span class="align-end font-bold text-4xl">{{ format_price(booking.total_cost) }}</span>
+                <span class="mb-3 text-lg">за {{ booking.total_days }} {{decline_by_cases(booking.total_days, ["ночь", "ночи", "ночей"])}}</span>
+                <button class="text-lg text-slate-50 bg-slate-500 px-3.5 py-1.5 rounded-lg mb-4" type="button" data-id="{{ booking.id }}">Отменить бронь</button>
             </div>
         </div>
+    </div>
     {% endfor %}
 </div>
+{% endblock %}
+
+{% block modal %}
+    {% include '/include-modal.html' %}
 {% endblock %}

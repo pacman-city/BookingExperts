@@ -5,8 +5,8 @@ from sqlalchemy import and_, func, insert, or_, select
 from app.booking.models import Booking
 from app.database import async_session_maker
 from app.exceptions import BookingNoneAvailableException
-from app.room.models import Room
 from app.hotel.models import Hotel
+from app.room.models import Room
 from app.service import BaseService
 
 

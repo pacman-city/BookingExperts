@@ -1,13 +1,14 @@
 from datetime import date, datetime, timedelta
 
-from fastapi import APIRouter, Depends, Request, Query
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.booking.router import get_bookings
+from app.hotel.router import get_available_hotels, get_hotel_by_id
 from app.room.router import get_rooms_by_time
-from app.hotel.router import get_hotel_by_id, get_available_hotels
-from app.utils import decline_by_cases, format_price, get_month_days
+from app.user.dependencies import verify_jwt
+from app.utils import decline_by_cases, format_price, get_logo_url, get_month_days
 
 router = APIRouter(prefix="", tags=["Фронтенд"])
 
@@ -15,36 +16,32 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/login", response_class=HTMLResponse)
-async def get_login_page(request: Request):
-    date_now = datetime.now().date()
+async def get_login_page(request: Request, is_authenticated=Depends(verify_jwt)):
     return templates.TemplateResponse(
         "auth/login.html",
         {
             "request": request,
-            "from": date_now.strftime("%Y-%m-%d"),
-            "to": (date_now + timedelta(days=1)).strftime("%Y-%m-%d")
+            "logo_url": get_logo_url(),
+            "is_authenticated": is_authenticated,
         }
     )
 
 
 @router.get("/register", response_class=HTMLResponse)
-async def get_register_page(request: Request):
-    date_now = datetime.now().date()
+async def get_register_page(request: Request, is_authenticated=Depends(verify_jwt)):
     return templates.TemplateResponse(
         "auth/register.html",
         {
             "request": request,
-            "from": date_now.strftime("%Y-%m-%d"),
-            "to": (date_now + timedelta(days=1)).strftime("%Y-%m-%d")
+            "logo_url": get_logo_url(),
+            "is_authenticated": is_authenticated
         }
     )
 
 
 @router.get("/", response_class=HTMLResponse)
 async def redirect_to_hotels_page():
-    date_now = datetime.now().date()
-    date_to = date_now + timedelta(days=365)
-    return RedirectResponse(f'hotels?date_from={date_now}&date_to={date_to}')
+    return RedirectResponse(get_logo_url())
 
 
 @router.get("/hotels", response_class=HTMLResponse)
@@ -53,6 +50,7 @@ async def get_hotels_page(
         location: str = Query(None, description="Например: алтай"),
         date_from: str = Query(None, description=f"Min: {datetime.now().date()}"),
         date_to: str = Query(None, description=f"Например: {(datetime.now() + timedelta(days=1)).date()}, max: 365 дней"),
+        is_authenticated=Depends(verify_jwt)
 ):
     date_now = datetime.now().date()
     date_max = date_now + timedelta(days=365)
@@ -76,12 +74,6 @@ async def get_hotels_page(
         date_from=date_from,
         date_to=date_to
     )
-
-    dates_from = get_month_days(date_now)
-    dates_to = dates_from.copy()
-    dates_from.pop(-1)
-    dates_to.pop(0)
-
     return templates.TemplateResponse(
         "hotels/hotels.html",
         {
@@ -90,10 +82,9 @@ async def get_hotels_page(
             "date_from": date_from.strftime("%Y-%m-%d"),
             "date_to": date_to.strftime("%Y-%m-%d"),
             "hotels": hotels,
-            "dates_from": dates_from,
-            "dates_to": dates_to,
-            "from": date_now.strftime("%Y-%m-%d"),
-            "to": (date_now + timedelta(days=1)).strftime("%Y-%m-%d")
+            "is_authenticated": is_authenticated,
+            "logo_url": get_logo_url(),
+            **get_month_days(date_now)
         },
     )
 
@@ -102,18 +93,18 @@ async def get_hotels_page(
 async def get_bookings_page(
         request: Request,
         bookings=Depends(get_bookings),
+        is_authenticated=Depends(verify_jwt)
 ):
-    date_now = datetime.now().date()
     return templates.TemplateResponse(
         "bookings/bookings.html",
         {
             "request": request,
             "bookings": bookings,
-            "from": date_now.strftime("%Y-%m-%d"),
-            "to": (date_now + timedelta(days=1)).strftime("%Y-%m-%d"),
+            "logo_url": get_logo_url(),
             "format_price": format_price,
-            "decline_by_cases": decline_by_cases
-        },
+            "decline_by_cases": decline_by_cases,
+            "is_authenticated": is_authenticated,
+        }
     )
 
 
@@ -123,7 +114,8 @@ async def get_rooms_page(
         date_from: date,
         date_to: date,
         rooms=Depends(get_rooms_by_time),
-        hotel=Depends(get_hotel_by_id)
+        hotel=Depends(get_hotel_by_id),
+        is_authenticated=Depends(verify_jwt)
 ):
     date_now = datetime.now().date()
     return templates.TemplateResponse(
@@ -134,10 +126,10 @@ async def get_rooms_page(
             "rooms": rooms,
             "date_from": date_from,
             "date_to": date_to,
+            "logo_url": get_logo_url(),
             "booking_length": (date_to - date_from).days,
-            "from": date_now.strftime("%Y-%m-%d"),
-            "to": (date_now + timedelta(days=1)).strftime("%Y-%m-%d"),
             "format_price": format_price,
-            "decline_by_cases": decline_by_cases
+            "decline_by_cases": decline_by_cases,
+            "is_authenticated": is_authenticated
         }
     )

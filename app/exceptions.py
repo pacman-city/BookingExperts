@@ -19,17 +19,8 @@ class UserExistsException(BookingException):
     detail = "Пользователь с таким email уже существует"
 
 
-class TokenAbsentException(BookingException):
-    status_code = status.HTTP_401_UNAUTHORIZED
-    detail = "Токен отсутствует"
-
-
-class TokenExpiredException(BookingException):
-    status_code = status.HTTP_401_UNAUTHORIZED
-    detail = "Срок действия токена истек"
-
-
-class TokenInvalidException(BookingException):
+class TokenException(BookingException):
+    """DEFAULT: Неверный формат токена"""
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Неверный формат токена"
 
