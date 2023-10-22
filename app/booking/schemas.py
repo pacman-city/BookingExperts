@@ -23,3 +23,7 @@ class BookingBody(BaseModel):
     room_id: int = Body(ge=1, examples=[1])
     date_from: date = Body(examples=[datetime.now().date()])
     date_to: date = Body(examples=[(datetime.now() + timedelta(days=1)).date()])
+
+
+class BookingAddResponse(BookingBody):
+    user_id: int

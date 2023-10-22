@@ -8,7 +8,7 @@ class Booking(Base):
     __tablename__ = "booking"
 
     room_id = mapped_column(ForeignKey("room.id"))
-    user_id = mapped_column(ForeignKey("user.id"))
+    user_id = mapped_column(ForeignKey("users.id"))
     date_from = mapped_column(Date, nullable=False)
     date_to = mapped_column(Date, nullable=False)
     price = mapped_column(Integer, nullable=False)

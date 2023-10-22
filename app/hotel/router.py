@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 
 from fastapi import APIRouter, Query
+from fastapi_cache.decorator import cache
 
 from app.exceptions import NotFoundException
 from app.hotel.schemas import HotelAvailableResponse, HotelResponse
@@ -23,12 +24,14 @@ async def get_available_hotels(
 
 
 @router.get("/all")
+@cache(expire=60)
 async def get_all_hotels():
     hotels = await HotelService.find_all()
     return hotels
 
 
 @router.get("/{hotel_id}")
+@cache(expire=60)
 async def get_hotel_by_id(hotel_id: int) -> HotelResponse:
     hotel = await HotelService.find_one_or_none(id=hotel_id)
     if not hotel:

@@ -7,8 +7,11 @@ from app.hotel.router import router
 from app.room.schemas import RoomResponse
 from app.room.service import RoomService
 
+from fastapi_cache.decorator import cache
+
 
 @router.get("/{hotel_id}/rooms")
+@cache(expire=60)
 async def get_rooms_by_time(
         hotel_id: int,
         date_from: date = Query(..., description=f"Например, {datetime.now().date()}"),

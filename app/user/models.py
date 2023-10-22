@@ -5,7 +5,7 @@ from app.database import Base
 
 
 class User(Base):
-    __tablename__ = "user"
+    __tablename__ = "users"
 
     email = mapped_column(String, unique=True, nullable=False)
     password = mapped_column(String, nullable=False)

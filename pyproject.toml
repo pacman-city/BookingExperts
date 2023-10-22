@@ -2,18 +2,20 @@
 name = "booking"
 version = "0.1.0"
 description = "booking rest api"
-authors = ["Евгений Клюев <kluev.evga@gmail.com>"]
+authors = ["Евгений Клюев <craftycoderpro@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fastapi = {extras = ["all"], version = "^0.103.2"}
+fastapi = { extras = ["all"], version = "^0.103.2" }
 sqlalchemy = "^2.0.21"
 alembic = "^1.12.0"
 asyncpg = "^0.28.0"
 python-jose = "^3.3.0"
 passlib = "^1.7.4"
-
+fastapi-cache2 = {extras = ["redis"], version = "^0.2.1"}
+celery = "^5.3.4"
+pillow = "^10.1.0"
 
 [build-system]
 requires = ["poetry-core"]

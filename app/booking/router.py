@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Body, Depends
+from fastapi_cache.decorator import cache
+from pydantic import TypeAdapter
 
-from app.booking.schemas import BookingBody, BookingResponse
+from app.booking.schemas import BookingBody, BookingResponse, BookingAddResponse
 from app.booking.service import BookingService
 from app.exceptions import BookingUnknownException
+from app.tasks.tasks import send_booking_confirmation_email
 from app.user.dependencies import get_current_user
 from app.user.models import User
 from app.utils import validate_date
@@ -11,6 +14,7 @@ router = APIRouter(prefix="/api/bookings", tags=["Бронирования"])
 
 
 @router.get("")
+@cache(expire=60)
 async def get_bookings(user: User = Depends(get_current_user)) -> list[BookingResponse]:
     return await BookingService.find_all_with_images(user_id=user.id)
 
@@ -28,7 +32,11 @@ async def add_booking(
     )
     if not booking:
         raise BookingUnknownException
-    return booking
+
+    validator = TypeAdapter(BookingAddResponse)
+    booking_dict = validator.validate_python(booking).model_dump()
+    send_booking_confirmation_email.delay(booking_dict, user.email)
+    return booking_dict
 
 
 @router.delete("", status_code=204)
