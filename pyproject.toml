@@ -16,6 +16,7 @@ passlib = "^1.7.4"
 fastapi-cache2 = {extras = ["redis"], version = "^0.2.1"}
 celery = "^5.3.4"
 pillow = "^10.1.0"
+sqladmin = "^0.15.2"
 
 [build-system]
 requires = ["poetry-core"]

@@ -14,3 +14,6 @@ class Hotel(Base):
     image_id = mapped_column(Integer)
 
     rooms = relationship("Room", back_populates="hotel")
+
+    def __str__(self):
+        return self.name

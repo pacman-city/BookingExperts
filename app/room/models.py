@@ -17,3 +17,6 @@ class Room(Base):
 
     hotel = relationship("Hotel", back_populates="rooms")
     booking = relationship("Booking", back_populates="room")
+
+    def __str__(self):
+        return self.name

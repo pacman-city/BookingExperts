@@ -13,3 +13,6 @@ class User(Base):
     last_name = mapped_column(String(25))
 
     booking = relationship("Booking", back_populates="user")
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"

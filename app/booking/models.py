@@ -17,3 +17,6 @@ class Booking(Base):
 
     user = relationship("User", back_populates="booking")
     room = relationship("Room", back_populates="booking")
+
+    def __str__(self):
+        return f"#{self.id}, from {self.date_from}"
