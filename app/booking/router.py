@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/bookings", tags=["Бронирования"])
 
 
 @router.get("")
-@cache(expire=60)
+# @cache(expire=60)
 async def get_bookings(user: User = Depends(get_current_user)) -> list[BookingResponse]:
     return await BookingService.find_all_with_images(user_id=user.id)
 
