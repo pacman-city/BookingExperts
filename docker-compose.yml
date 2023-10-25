@@ -12,7 +12,7 @@ services:
     env_file:
       - .env.prod
     ports:
-      - 7777:5432
+      - 7000:5432
 
   redis:
     image: redis:7-alpine
@@ -28,7 +28,7 @@ services:
       - redis
     command: [ "/booking/docker/app.sh" ]
     ports:
-      - 8000:8000
+      - 9000:8000
 
   celery:
     build: ./
