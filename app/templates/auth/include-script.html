@@ -24,7 +24,19 @@
                 else return res.json()
             })
             .then((err) => {
-                document.getElementById("error-message").textContent = err.detail
+                if (typeof err.detail === 'string') {
+                    document.getElementById("error-message").textContent = err.detail;
+                }
+                if (Array.isArray(err.detail)) {
+                    document.getElementById("error-message").innerHTML = ""
+                    err.detail.forEach((error) => {
+                        if (error.loc && error.loc.length > 1) {
+                            const fieldName = error.loc[1];
+                            const errorMessage = `Неправильный формат поля: ${fieldName}<br/>`;
+                            document.getElementById("error-message").innerHTML += errorMessage;
+                        }
+                    });
+                }
             })
         })
     })

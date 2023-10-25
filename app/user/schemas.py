@@ -6,8 +6,8 @@ from pydantic import BaseModel, EmailStr, Field
 
 class BaseUser(BaseModel):
     email: EmailStr
-    first_name: Annotated[str | None, MinLen(2), MaxLen(25)] = Field(None, pattern=r'^[A-Za-zА-Яа-я]+$', examples=["string"])
-    last_name: Annotated[str | None, MinLen(2), MaxLen(25)] = Field(None, pattern=r'^[A-Za-zА-Яа-я]+$', examples=["string"])
+    first_name: Annotated[str | None, MinLen(2), MaxLen(25)] = Field(None, pattern=r'^[\p{L}]+$', examples=["string"])
+    last_name: Annotated[str | None, MinLen(2), MaxLen(25)] = Field(None, pattern=r'^[\p{L}]+$', examples=["string"])
 
 
 class UserBody(BaseUser):
